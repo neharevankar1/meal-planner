@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Meal Planner - Recipe Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6B6B6B;
+            --primary-dark: #4A4A4A;
+            --secondary: #C9A58A;
+            --bg-main: #F8F6F3;
+            --bg-card: #FFFFFF;
+            --accent-gold: #B8956A;
+            --text-dark: #2F2F2F;
+            --text-medium: #6B6B6B;
+            --border-subtle: #E5DED5;
+            --success: #4CAF50;
+            --warning: #FFC107;
+            --error: #F44336;
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: var(--shadow-md);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            opacity: 0.9;
+        }
+
+        .nav {
+            background: var(--bg-card);
+            padding: 1rem;
+            margin: 2rem 0;
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .nav button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .nav button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .nav button.active {
+            background: var(--secondary);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-subtle);
+            border-radius: 6px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            background: var(--text-medium);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .progress-container {
+            background: #E0E0E0;
+            border-radius: 4px;
+            height: 24px;
+            margin: 1rem 0;
+            overflow: hidden;
+            display: none;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .status-message.active {
+            display: block;
+        }
+
+        .status-message.success {
+            background: #E8F5E9;
+            border-left: 4px solid var(--success);
+            color: #2E7D32;
+        }
+
+        .status-message.warning {
+            background: #FFF8E1;
+            border-left: 4px solid var(--warning);
+            color: #F57C00;
+        }
+
+        .status-message.error {
+            background: #FFEBEE;
+            border-left: 4px solid var(--error);
+            color: #C62828;
+        }
+
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .recipe-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+        }
+
+        .recipe-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .recipe-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .recipe-macros {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin: 1rem 0;
+            padding: 1rem;
+            background: var(--bg-main);
+            border-radius: 6px;
+        }
+
+        .macro-item {
+            font-size: 0.9rem;
+        }
+
+        .macro-item strong {
+            color: var(--primary);
+        }
+
+        .recipe-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .tag {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .tag-breakfast {
+            background: #FFE5CC;
+            color: #E65100;
+        }
+
+        .tag-lunch {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .tag-dinner {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .tag-pre-workout {
+            background: #FFF8E1;
+            color: #F57C00;
+        }
+
+        .tag-post-workout {
+            background: #F3E5F5;
+            color: #6A1B9A;
+        }
+
+        .tag-light {
+            background: #E0F2F1;
+            color: #00695C;
+        }
+
+        .tag-heavy {
+            background: #FCE4EC;
+            color: #C2185B;
+        }
+
+        .uncertainty-flag {
+            background: #FFF8E1;
+            border-left: 4px solid var(--warning);
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .recipe-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .recipe-actions button {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .settings-card {
+            background: #FFF8E1;
+            border-left: 4px solid var(--warning);
+        }
+
+        .api-key-input {
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .youtube-playlist {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .video-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .video-checkbox:last-child {
+            border-bottom: none;
+        }
+
+        .video-checkbox input[type="checkbox"] {
+            width: auto;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-medium);
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .recipe-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav {
+                flex-direction: column;
+            }
+
+            .nav button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🍽️ AI Meal Planner</h1>
+        <p>Your intelligent recipe library & meal planning assistant</p>
+    </header>
+
+    <div class="container">
+        <nav class="nav">
+            <button class="active" onclick="showSection('extract')">📥 Extract Recipes</button>
+            <button onclick="showSection('library')">📚 Recipe Library</button>
+            <button onclick="showSection('settings')">⚙️ Settings</button>
+        </nav>
+
+        <!-- Extract Recipes Section -->
+        <div id="extract" class="section active">
+            <div class="card">
+                <h2>Extract Recipes from URLs</h2>
+                <p style="color: var(--text-medium); margin-bottom: 1.5rem;">
+                    Paste recipe URLs separated by commas. Supports Instagram, blogs, YouTube videos and playlists!
+                </p>
+
+                <div class="form-group">
+                    <label for="recipeUrls">Recipe URLs (comma-separated)</label>
+                    <textarea 
+                        id="recipeUrls" 
+                        placeholder="https://example.com/recipe1, https://youtube.com/playlist?list=..., https://instagram.com/p/..."></textarea>
+                    <small style="color: var(--text-medium)">Example: https://blog.com/recipe, https://youtube.com/watch?v=abc</small>
+                </div>
+
+                <button class="btn btn-primary" onclick="extractRecipes()" id="extractBtn">
+                    🤖 Extract Recipes with AI
+                </button>
+
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar">0%</div>
+                </div>
+
+                <div class="status-message" id="statusMessage"></div>
+
+                <div id="youtubePlaylistSelector"></div>
+
+                <div id="extractedRecipes"></div>
+            </div>
+        </div>
+
+        <!-- Recipe Library Section -->
+        <div id="library" class="section">
+            <div class="card">
+                <h2>My Recipe Library</h2>
+                
+                <div class="form-group">
+                    <input 
+                        type="text" 
+                        id="searchRecipes" 
+                        placeholder="🔍 Search recipes..."
+                        onkeyup="filterRecipes()">
+                </div>
+
+                <div id="recipeLibrary">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                        </svg>
+                        <h3>No recipes yet</h3>
+                        <p>Start by extracting recipes from URLs!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settings" class="section">
+            <div class="card settings-card">
+                <h2>⚙️ Settings</h2>
+                <p style="margin-bottom: 1.5rem;"><strong>⚠️ Important:</strong> You need a Claude API key to extract recipes automatically.</p>
+
+                <div class="form-group">
+                    <label for="apiKey">Claude API Key</label>
+                    <input 
+                        type="password" 
+                        id="apiKey" 
+                        class="api-key-input"
+                        placeholder="sk-ant-api03-...">
+                    <small style="color: var(--text-medium)">
+                        Get your API key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
+                    </small>
+                </div>
+
+                <button class="btn btn-primary" onclick="saveSettings()">
+                    💾 Save Settings
+                </button>
+
+                <div style="margin-top: 2rem; padding: 1rem; background: var(--bg-main); border-radius: 6px;">
+                    <h3 style="margin-bottom: 0.5rem;">💰 Cost Info</h3>
+                    <p style="font-size: 0.9rem; color: var(--text-medium);">
+                        • ~$0.001 per recipe (0.1 cent)<br>
+                        • 100 recipes = $0.10<br>
+                        • 1,000 recipes = $1.00<br>
+                        Very affordable! 🎉
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📊 Data Management</h2>
+                
+                <div style="margin-bottom: 1rem;">
+                    <button class="btn btn-secondary" onclick="exportRecipes()">
+                        📤 Export All Recipes (JSON)
+                    </button>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    <input type="file" id="importFile" accept=".json" style="display: none" onchange="importRecipes()">
+                    <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
+                        📥 Import Recipes (JSON)
+                    </button>
+                </div>
+
+                <div>
+                    <button class="btn btn-danger" onclick="clearAllData()">
+                        🗑️ Clear All Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Storage keys
+        const STORAGE_KEYS = {
+            API_KEY: 'meal_planner_api_key',
+            RECIPES: 'meal_planner_recipes'
+        };
+
+        // Get API key from storage
+        function getApiKey() {
+            return localStorage.getItem(STORAGE_KEYS.API_KEY) || '';
+        }
+
+        // Load API key on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const apiKey = getApiKey();
+            if (apiKey) {
+                document.getElementById('apiKey').value = apiKey;
+            }
+            loadRecipeLibrary();
+        });
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Reload library when showing it
+            if (sectionId === 'library') {
+                loadRecipeLibrary();
+            }
+        }
+
+        // Save settings
+        function saveSettings() {
+            const apiKey = document.getElementById('apiKey').value.trim();
+            
+            if (!apiKey) {
+                showStatus('Please enter your Claude API key', 'error');
+                return;
+            }
+
+            if (!apiKey.startsWith('sk-ant-')) {
+                showStatus('Invalid API key format. Should start with sk-ant-', 'error');
+                return;
+            }
+
+            localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
+            showStatus('Settings saved successfully! ✅', 'success');
+        }
+
+        // Show status message
+        function showStatus(message, type = 'success') {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = `status-message active ${type}`;
+            
+            setTimeout(() => {
+                statusEl.classList.remove('active');
+            }, 5000);
+        }
+
+        // Update progress bar
+        function updateProgress(current, total) {
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            
+            if (total === 0) {
+                progressContainer.classList.remove('active');
+                return;
+            }
+
+            progressContainer.classList.add('active');
+            const percentage = Math.round((current / total) * 100);
+            progressBar.style.width = percentage + '%';
+            progressBar.textContent = `${current}/${total} recipes (${percentage}%)`;
+        }
+
+        // Extract recipes from URLs
+        async function extractRecipes() {
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                showStatus('Please set your Claude API key in Settings first!', 'error');
+                showSection('settings');
+                return;
+            }
+
+            const urls = document.getElementById('recipeUrls').value
+                .split(',')
+                .map(url => url.trim())
+                .filter(url => url.length > 0);
+
+            if (urls.length === 0) {
+                showStatus('Please enter at least one recipe URL', 'error');
+                return;
+            }
+
+            // Disable button
+            const extractBtn = document.getElementById('extractBtn');
+            extractBtn.disabled = true;
+            extractBtn.textContent = '⏳ Extracting...';
+
+            // Check for YouTube playlists
+            const playlistUrls = urls.filter(url => 
+                url.includes('youtube.com/playlist') || url.includes('youtu.be/playlist')
+            );
+
+            if (playlistUrls.length > 0) {
+                // Handle YouTube playlists separately
+                await handleYouTubePlaylists(playlistUrls);
+                extractBtn.disabled = false;
+                extractBtn.textContent = '🤖 Extract Recipes with AI';
+                return;
+            }
+
+            // Process regular URLs
+            try {
+                updateProgress(0, urls.length);
+                const results = [];
+
+                for (let i = 0; i < urls.length; i++) {
+                    const url = urls[i];
+                    showStatus(`Extracting recipe ${i + 1} of ${urls.length}...`, 'success');
+                    
+                    const recipe = await extractRecipeFromUrl(url, apiKey);
+                    if (recipe) {
+                        results.push(recipe);
+                    }
+                    
+                    updateProgress(i + 1, urls.length);
+                }
+
+                // Save recipes
+                saveRecipes(results);
+                
+                showStatus(`✅ Successfully extracted ${results.length} recipe(s)!`, 'success');
+                
+                // Clear input
+                document.getElementById('recipeUrls').value = '';
+                
+                // Show extracted recipes
+                displayExtractedRecipes(results);
+
+            } catch (error) {
+                console.error('Extraction error:', error);
+                showStatus('Error extracting recipes: ' + error.message, 'error');
+            } finally {
+                extractBtn.disabled = false;
+                extractBtn.textContent = '🤖 Extract Recipes with AI';
+                updateProgress(0, 0);
+            }
+        }
+
+        // Extract single recipe from URL using Claude API
+        async function extractRecipeFromUrl(url, apiKey) {
+            try {
+                // First, fetch the content (using a CORS proxy for client-side)
+                // Note: In production, you'd want a backend for this
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': apiKey,
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 4096,
+                        messages: [{
+                            role: 'user',
+                            content: `Extract the recipe from this URL: ${url}
+
+Please analyze the recipe and return ONLY a JSON object (no markdown, no explanation) with this exact structure:
+
+{
+  "name": "Recipe name",
+  "url": "${url}",
+  "ingredients": ["ingredient 1", "ingredient 2"],
+  "servingSize": "X servings",
+  "macros": {
+    "calories": 450,
+    "protein": 45,
+    "carbs": 35,
+    "fat": 15,
+    "fiber": 8
+  },
+  "tags": {
+    "mealType": ["breakfast"],
+    "workoutTiming": [],
+    "intensity": "light",
+    "complexity": "simple"
+  },
+  "uncertainty": {
+    "hasMacros": true,
+    "confidence": "high",
+    "notes": ""
+  }
+}
+
+Rules for tagging:
+- mealType: breakfast/lunch/dinner (can be multiple)
+- workoutTiming: pre-workout/post-workout (can be both or neither)
+- intensity: light/medium/heavy (based on calories and digestibility)
+- complexity: simple/moderate/elaborate
+- If macros are uncertain, set hasMacros: false and confidence: "low"`
+                        }]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const content = data.content[0].text;
+                
+                // Parse the JSON response
+                const recipe = JSON.parse(content);
+                recipe.id = Date.now() + Math.random();
+                recipe.createdAt = new Date().toISOString();
+                
+                return recipe;
+
+            } catch (error) {
+                console.error(`Error extracting recipe from ${url}:`, error);
+                showStatus(`Failed to extract from ${url}: ${error.message}`, 'warning');
+                return null;
+            }
+        }
+
+        // Handle YouTube playlists
+        async function handleYouTubePlaylists(playlistUrls) {
+            showStatus('YouTube playlist detection not fully implemented yet. Please paste individual video URLs for now.', 'warning');
+            
+            // TODO: Implement YouTube API integration
+            // For now, show instructions
+            const selectorDiv = document.getElementById('youtubePlaylistSelector');
+            selectorDiv.innerHTML = `
+                <div class="youtube-playlist">
+                    <h3>📹 YouTube Playlists Detected</h3>
+                    <p>To extract recipes from YouTube playlists:</p>
+                    <ol style="margin: 1rem 0; padding-left: 1.5rem;">
+                        <li>Open the playlist</li>
+                        <li>Copy individual video URLs</li>
+                        <li>Paste them here (comma-separated)</li>
+                    </ol>
+                    <p style="color: var(--text-medium); font-size: 0.9rem;">
+                        Full playlist support coming soon!
+                    </p>
+                </div>
+            `;
+        }
+
+        // Display extracted recipes
+        function displayExtractedRecipes(recipes) {
+            const container = document.getElementById('extractedRecipes');
+            
+            if (recipes.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="margin-top: 2rem;">
+                    <h3>✅ Extracted Recipes</h3>
+                    <div class="recipe-grid">
+                        ${recipes.map(recipe => createRecipeCard(recipe, true)).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Create recipe card HTML
+        function createRecipeCard(recipe, isPreview = false) {
+            const uncertaintyFlag = !recipe.uncertainty?.hasMacros || recipe.uncertainty?.confidence === 'low' 
+                ? `<div class="uncertainty-flag">
+                    ⚠️ Macros may need review: ${recipe.uncertainty?.notes || 'Uncertain extraction'}
+                   </div>`
+                : '';
+
+            return `
+                <div class="recipe-card">
+                    <h3>${recipe.name}</h3>
+                    
+                    ${uncertaintyFlag}
+                    
+                    <div class="recipe-macros">
+                        <div class="macro-item">📊 <strong>${recipe.macros.calories}</strong> cal</div>
+                        <div class="macro-item">🥩 <strong>${recipe.macros.protein}g</strong> protein</div>
+                        <div class="macro-item">🍚 <strong>${recipe.macros.carbs}g</strong> carbs</div>
+                        <div class="macro-item">🥑 <strong>${recipe.macros.fat}g</strong> fat</div>
+                    </div>
+
+                    <div class="recipe-tags">
+                        ${recipe.tags.mealType.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}
+                        ${recipe.tags.workoutTiming.map(tag => `<span class="tag tag-${tag}">${tag}</span>`).join('')}
+                        <span class="tag tag-${recipe.tags.intensity}">${recipe.tags.intensity}</span>
+                    </div>
+
+                    <div style="font-size: 0.9rem; color: var(--text-medium); margin-top: 1rem;">
+                        <strong>Serving:</strong> ${recipe.servingSize}<br>
+                        <a href="${recipe.url}" target="_blank" style="color: var(--primary);">View Recipe →</a>
+                    </div>
+
+                    ${!isPreview ? `
+                        <div class="recipe-actions">
+                            <button onclick="editRecipe('${recipe.id}')" style="background: var(--secondary); color: white;">
+                                ✏️ Edit
+                            </button>
+                            <button onclick="deleteRecipe('${recipe.id}')" style="background: var(--error); color: white;">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Save recipes to storage
+        function saveRecipes(newRecipes) {
+            const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+            const updated = [...existing, ...newRecipes];
+            localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(updated));
+        }
+
+        // Load recipe library
+        function loadRecipeLibrary() {
+            const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+            const container = document.getElementById('recipeLibrary');
+
+            if (recipes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+                        </svg>
+                        <h3>No recipes yet</h3>
+                        <p>Start by extracting recipes from URLs!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="recipe-grid">
+                    ${recipes.map(recipe => createRecipeCard(recipe)).join('')}
+                </div>
+            `;
+        }
+
+        // Filter recipes
+        function filterRecipes() {
+            const searchTerm = document.getElementById('searchRecipes').value.toLowerCase();
+            const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+            
+            const filtered = recipes.filter(recipe => 
+                recipe.name.toLowerCase().includes(searchTerm) ||
+                recipe.tags.mealType.some(tag => tag.includes(searchTerm)) ||
+                recipe.tags.workoutTiming.some(tag => tag.includes(searchTerm))
+            );
+
+            const container = document.getElementById('recipeLibrary');
+            container.innerHTML = `
+                <div class="recipe-grid">
+                    ${filtered.map(recipe => createRecipeCard(recipe)).join('')}
+                </div>
+            `;
+        }
+
+        // Delete recipe
+        function deleteRecipe(recipeId) {
+            if (!confirm('Are you sure you want to delete this recipe?')) {
+                return;
+            }
+
+            const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+            const updated = recipes.filter(r => r.id != recipeId);
+            localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(updated));
+            loadRecipeLibrary();
+            showStatus('Recipe deleted', 'success');
+        }
+
+        // Edit recipe (placeholder)
+        function editRecipe(recipeId) {
+            showStatus('Recipe editing coming soon!', 'warning');
+            // TODO: Implement edit modal
+        }
+
+        // Export recipes
+        function exportRecipes() {
+            const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+            const dataStr = JSON.stringify(recipes, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `meal-planner-recipes-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            showStatus('Recipes exported successfully!', 'success');
+        }
+
+        // Import recipes
+        function importRecipes() {
+            const file = document.getElementById('importFile').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+                    const merged = [...existing, ...imported];
+                    localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(merged));
+                    loadRecipeLibrary();
+                    showStatus(`Imported ${imported.length} recipes!`, 'success');
+                } catch (error) {
+                    showStatus('Error importing recipes: Invalid file format', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (!confirm('Are you sure? This will delete ALL your recipes permanently!')) {
+                return;
+            }
+
+            if (!confirm('Really sure? This cannot be undone!')) {
+                return;
+            }
+
+            localStorage.removeItem(STORAGE_KEYS.RECIPES);
+            loadRecipeLibrary();
+            showStatus('All data cleared', 'success');
+        }
+    </script>
+</body>
+</html>
