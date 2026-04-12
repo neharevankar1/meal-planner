@@ -707,7 +707,7 @@
             try {
                 // First, fetch the content (using a CORS proxy for client-side)
                 // Note: In production, you'd want a backend for this
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                const response = await fetch('https://meal-planner-proxy.neha-revankar.workers.dev/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
