@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Meal Planner - Recipe Library v2</title>
+    <title>AI Meal Planner v3.0 - Complete System</title>
     <style>
         * {
             margin: 0;
@@ -17,7 +17,6 @@
             --secondary: #C9A58A;
             --bg-main: #F8F6F3;
             --bg-card: #FFFFFF;
-            --accent-gold: #B8956A;
             --text-dark: #2F2F2F;
             --text-medium: #6B6B6B;
             --border-subtle: #E5DED5;
@@ -26,6 +25,9 @@
             --error: #F44336;
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
             --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --pcos-green: #4CAF50;
+            --pcos-yellow: #FFC107;
+            --pcos-red: #F44336;
         }
 
         body {
@@ -54,10 +56,6 @@
             margin-bottom: 0.5rem;
         }
 
-        header p {
-            opacity: 0.9;
-        }
-
         .nav {
             background: var(--bg-card);
             padding: 1rem;
@@ -82,7 +80,6 @@
 
         .nav button:hover {
             background: var(--primary-dark);
-            transform: translateY(-1px);
         }
 
         .nav button.active {
@@ -108,7 +105,12 @@
         .card h2 {
             color: var(--primary);
             margin-bottom: 1.5rem;
-            font-size: 1.5rem;
+        }
+
+        .card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
         }
 
         .form-group {
@@ -119,7 +121,6 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
-            color: var(--text-dark);
         }
 
         .form-group input,
@@ -131,13 +132,6 @@
             border-radius: 6px;
             font-size: 1rem;
             font-family: inherit;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
         }
 
         .form-group textarea {
@@ -162,13 +156,11 @@
 
         .btn-primary:hover {
             background: var(--primary-dark);
-            transform: translateY(-1px);
         }
 
         .btn-primary:disabled {
             background: var(--text-medium);
             cursor: not-allowed;
-            transform: none;
         }
 
         .btn-secondary {
@@ -179,6 +171,11 @@
         .btn-danger {
             background: var(--error);
             color: white;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
         }
 
         .progress-container {
@@ -197,7 +194,6 @@
         .progress-bar {
             background: linear-gradient(90deg, var(--primary), var(--secondary));
             height: 100%;
-            border-radius: 4px;
             transition: width 0.3s;
             display: flex;
             align-items: center;
@@ -236,7 +232,6 @@
             color: #C62828;
         }
 
-        /* TABLE STYLES */
         .table-container {
             overflow-x: auto;
             margin-top: 2rem;
@@ -265,6 +260,7 @@
         td {
             padding: 1rem;
             border-bottom: 1px solid var(--border-subtle);
+            vertical-align: top;
         }
 
         tbody tr:hover {
@@ -278,31 +274,20 @@
         .recipe-name {
             font-weight: 600;
             color: var(--primary);
+            margin-bottom: 0.25rem;
         }
 
-        .portion-info {
-            font-size: 0.9rem;
+        .pcos-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
         }
 
-        .portion-weekday {
-            color: var(--text-dark);
-            font-weight: 500;
-        }
-
-        .portion-weekend {
-            color: var(--text-medium);
-            font-size: 0.85rem;
-            margin-top: 0.25rem;
-        }
-
-        .macros-cell {
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-
-        .macro-item {
-            display: block;
-        }
+        .pcos-green { background: var(--pcos-green); }
+        .pcos-yellow { background: var(--pcos-yellow); }
+        .pcos-red { background: var(--pcos-red); }
 
         .tag {
             display: inline-block;
@@ -310,43 +295,12 @@
             border-radius: 20px;
             font-size: 0.85rem;
             font-weight: 500;
-            margin-right: 0.5rem;
         }
 
-        .tag-breakfast {
-            background: #FFE5CC;
-            color: #E65100;
-        }
-
-        .tag-lunch {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
-
-        .tag-dinner {
-            background: #E3F2FD;
-            color: #1565C0;
-        }
-
-        .tag-snack {
-            background: #F3E5F5;
-            color: #6A1B9A;
-        }
-
-        .tag-light {
-            background: #E0F2F1;
-            color: #00695C;
-        }
-
-        .tag-medium {
-            background: #FFF8E1;
-            color: #F57C00;
-        }
-
-        .tag-heavy {
-            background: #FCE4EC;
-            color: #C2185B;
-        }
+        .tag-breakfast { background: #FFE5CC; color: #E65100; }
+        .tag-lunch { background: #E8F5E9; color: #2E7D32; }
+        .tag-dinner { background: #E3F2FD; color: #1565C0; }
+        .tag-snack { background: #F3E5F5; color: #6A1B9A; }
 
         .uncertainty-flag {
             background: #FFF8E1;
@@ -370,37 +324,15 @@
             font-size: 0.85rem;
         }
 
-        .btn-edit {
-            background: var(--secondary);
-            color: white;
-        }
-
         .btn-delete {
             background: var(--error);
             color: white;
-        }
-
-        .settings-card {
-            background: #FFF8E1;
-            border-left: 4px solid var(--warning);
-        }
-
-        .api-key-input {
-            font-family: monospace;
-            font-size: 0.9rem;
         }
 
         .empty-state {
             text-align: center;
             padding: 3rem;
             color: var(--text-medium);
-        }
-
-        .empty-state svg {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 1rem;
-            opacity: 0.3;
         }
 
         .filter-controls {
@@ -418,35 +350,272 @@
             font-size: 0.9rem;
         }
 
+        /* Meal Planner Specific Styles */
+        .day-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .day-card {
+            padding: 1rem;
+            border: 2px solid var(--border-subtle);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .day-card:hover {
+            border-color: var(--primary);
+        }
+
+        .day-card.active {
+            border-color: var(--secondary);
+            background: #FFF8F0;
+        }
+
+        .day-card .day-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .day-card .day-date {
+            font-size: 0.85rem;
+            color: var(--text-medium);
+        }
+
+        .activity-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .activity-option {
+            padding: 1.5rem 1rem;
+            border: 2px solid var(--border-subtle);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .activity-option:hover {
+            border-color: var(--primary);
+        }
+
+        .activity-option.selected {
+            border-color: var(--success);
+            background: #E8F5E9;
+        }
+
+        .activity-option .icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .activity-option .name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-option .calories {
+            font-size: 0.85rem;
+            color: var(--text-medium);
+        }
+
+        .meal-slots {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .meal-slot {
+            padding: 1.5rem;
+            border: 2px solid var(--border-subtle);
+            border-radius: 8px;
+            background: var(--bg-card);
+        }
+
+        .meal-slot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .meal-slot-time {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .meal-slot-target {
+            font-size: 0.9rem;
+            color: var(--text-medium);
+        }
+
+        .recipe-picker {
+            margin-top: 1rem;
+        }
+
+        .recipe-selected {
+            padding: 1rem;
+            background: #F5F5F5;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .macro-tracker {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #E8F5E9;
+            border-radius: 8px;
+            border-left: 4px solid var(--success);
+        }
+
+        .macro-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 120px;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .macro-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .macro-label {
+            font-weight: 600;
+        }
+
+        .macro-progress {
+            background: white;
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .macro-progress-bar {
+            height: 100%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .macro-progress-bar.protein { background: #F44336; }
+        .macro-progress-bar.carbs { background: #FF9800; }
+        .macro-progress-bar.fat { background: #FFC107; }
+        .macro-progress-bar.calories { background: #4CAF50; }
+
+        .macro-values {
+            text-align: right;
+            font-size: 0.9rem;
+        }
+
+        .warnings-box {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #FFF8E1;
+            border-left: 4px solid var(--warning);
+            border-radius: 6px;
+        }
+
+        .warning-item {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-card .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-medium);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stat-card .stat-change {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--error);
+        }
+
+        .chart-container {
+            height: 300px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .week-log-table {
+            margin-top: 1rem;
+        }
+
         @media (max-width: 768px) {
-            .nav {
-                flex-direction: column;
-            }
-
-            .nav button {
-                width: 100%;
-            }
-
             .table-container {
                 font-size: 0.85rem;
             }
-
             th, td {
                 padding: 0.5rem;
+            }
+            .day-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .activity-selector {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>🍽️ AI Meal Planner</h1>
-        <p>Your intelligent recipe library & meal planning assistant</p>
+        <h1>🍽️ AI Meal Planner v3.0</h1>
+        <p>Complete PCOS-Friendly Meal Planning & Tracking System</p>
     </header>
 
     <div class="container">
         <nav class="nav">
             <button class="active" onclick="showSection('extract')">📥 Extract Recipes</button>
             <button onclick="showSection('library')">📚 Recipe Library</button>
+            <button onclick="showSection('planner')">📅 Meal Planner</button>
+            <button onclick="showSection('dashboard')">📊 Dashboard</button>
             <button onclick="showSection('settings')">⚙️ Settings</button>
         </nav>
 
@@ -463,7 +632,7 @@
                     <textarea 
                         id="recipeUrls" 
                         placeholder="https://example.com/recipe1, https://youtube.com/watch?v=abc"></textarea>
-                    <small style="color: var(--text-medium)">Works: Blogs, YouTube. Doesn't work: Instagram, Pinterest (paste caption text instead)</small>
+                    <small style="color: var(--text-medium)">Works: Blogs, YouTube. Doesn't work: Instagram, Pinterest</small>
                 </div>
 
                 <button class="btn btn-primary" onclick="extractRecipes()" id="extractBtn">
@@ -485,34 +654,6 @@
             <div class="card">
                 <h2>My Recipe Library</h2>
                 
-                <!-- Macro Targets Info Box -->
-                <div style="background: #E8F5E9; border-left: 4px solid #4CAF50; padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem;">
-                    <h3 style="margin-bottom: 0.75rem; font-size: 1.1rem; color: #2E7D32;">🎯 Your Daily Macro Targets</h3>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
-                        <div>
-                            <strong>Weekdays (1750 kcal):</strong>
-                            <div style="margin-top: 0.5rem; line-height: 1.6;">
-                                Breakfast: 450 kcal → 34g protein, 45g carbs, 15g fat<br>
-                                Lunch: 600 kcal → 45g protein, 60g carbs, 20g fat<br>
-                                Dinner: 500 kcal → 38g protein, 50g carbs, 17g fat<br>
-                                Snacks: 200 kcal → 15g protein, 20g carbs, 6g fat
-                            </div>
-                        </div>
-                        <div>
-                            <strong>Weekends (2200 kcal):</strong>
-                            <div style="margin-top: 0.5rem; line-height: 1.6;">
-                                Breakfast: 550 kcal → 41g protein, 55g carbs, 18g fat<br>
-                                Lunch: 750 kcal → 56g protein, 75g carbs, 25g fat<br>
-                                Dinner: 650 kcal → 49g protein, 65g carbs, 22g fat<br>
-                                Snacks: 250 kcal → 19g protein, 25g carbs, 8g fat
-                            </div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #C8E6C9; font-size: 0.85rem; color: #2E7D32;">
-                        <strong>PCOS-Friendly Split:</strong> 30% protein | 40% carbs | 30% fat
-                    </div>
-                </div>
-                
                 <div class="filter-controls">
                     <input 
                         type="text" 
@@ -529,19 +670,16 @@
                         <option value="snack">Snack</option>
                     </select>
 
-                    <select id="filterDigestive" onchange="filterRecipes()">
-                        <option value="">All Digestive Loads</option>
-                        <option value="light">Light</option>
-                        <option value="medium">Medium</option>
-                        <option value="heavy">Heavy</option>
+                    <select id="filterPCOS" onchange="filterRecipes()">
+                        <option value="">All PCOS Ratings</option>
+                        <option value="green">🟢 Green (Best)</option>
+                        <option value="yellow">🟡 Yellow (Okay)</option>
+                        <option value="red">🔴 Red (Limit)</option>
                     </select>
                 </div>
 
                 <div id="recipeLibrary">
                     <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-                        </svg>
                         <h3>No recipes yet</h3>
                         <p>Start by extracting recipes from URLs!</p>
                     </div>
@@ -549,36 +687,121 @@
             </div>
         </div>
 
+        <!-- Meal Planner Section -->
+        <div id="planner" class="section">
+            <div class="card">
+                <h2>📅 Weekly Meal Planner</h2>
+                
+                <div class="day-selector" id="daySelector">
+                    <!-- Generated by JS -->
+                </div>
+
+                <div id="dayPlanContent">
+                    <div class="empty-state">
+                        <h3>Select a day to start planning</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <div class="card">
+                <h2>📊 Weekly Dashboard</h2>
+                
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Daily Calories</div>
+                        <div class="stat-value" id="avgCalories">--</div>
+                        <div class="stat-change" id="caloriesTrend"></div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Protein (g/day)</div>
+                        <div class="stat-value" id="avgProtein">--</div>
+                        <div class="stat-change" id="proteinTrend"></div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Weight Change</div>
+                        <div class="stat-value" id="weightChange">--</div>
+                        <div class="stat-change" id="weightTrend"></div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">Activity Days</div>
+                        <div class="stat-value" id="activityDays">--</div>
+                        <div class="stat-change">This week</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Weekly Meal Log</h3>
+                    <div id="weeklyLogTable"></div>
+                </div>
+
+                <div class="card">
+                    <h3>📈 Fitbit Integration</h3>
+                    <p style="color: var(--text-medium); margin-bottom: 1rem;">
+                        Connect your Fitbit to track calories burned, steps, and weight.
+                    </p>
+                    <button class="btn btn-secondary" onclick="connectFitbit()">
+                        🔗 Connect Fitbit (Coming Soon)
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3>⚠️ Problems Detected</h3>
+                    <div id="problemsDetected"></div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    <button class="btn btn-secondary" onclick="exportWeeklyReport()">
+                        📤 Export Weekly Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Settings Section -->
         <div id="settings" class="section">
-            <div class="card settings-card">
-                <h2>⚙️ Settings</h2>
-                <p style="margin-bottom: 1.5rem;"><strong>⚠️ Important:</strong> You need a Claude API key to extract recipes automatically.</p>
+            <div class="card" style="background: #FFF8E1; border-left: 4px solid var(--warning);">
+                <h2>⚙️ API Settings</h2>
+                <p style="margin-bottom: 1.5rem;"><strong>⚠️ Important:</strong> You need a Claude API key to extract recipes.</p>
 
                 <div class="form-group">
                     <label for="apiKey">Claude API Key</label>
                     <input 
                         type="password" 
                         id="apiKey" 
-                        class="api-key-input"
                         placeholder="sk-ant-api03-...">
-                    <small style="color: var(--text-medium)">
-                        Get your API key from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>
-                    </small>
+                    <small>Get from <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></small>
                 </div>
 
                 <button class="btn btn-primary" onclick="saveSettings()">
                     💾 Save Settings
                 </button>
+            </div>
 
-                <div style="margin-top: 2rem; padding: 1rem; background: var(--bg-main); border-radius: 6px;">
-                    <h3 style="margin-bottom: 0.5rem;">💰 Cost Info</h3>
-                    <p style="font-size: 0.9rem; color: var(--text-medium);">
-                        • ~$0.001 per recipe (0.1 cent)<br>
-                        • 100 recipes = $0.10<br>
-                        • 1,000 recipes = $1.00<br>
-                        Very affordable! 🎉
-                    </p>
+            <div class="card">
+                <h2>🏃‍♀️ Activity Manager</h2>
+                <p style="margin-bottom: 1rem; color: var(--text-medium);">
+                    Manage your activities and their calorie burns.
+                </p>
+                
+                <div id="activityList"></div>
+                
+                <h3 style="margin-top: 2rem;">Add New Activity</h3>
+                <div style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 1rem; align-items: end;">
+                    <div class="form-group" style="margin: 0;">
+                        <label>Activity Name</label>
+                        <input type="text" id="newActivityName" placeholder="e.g., Swimming">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label>Calories Burned</label>
+                        <input type="number" id="newActivityCalories" placeholder="200">
+                    </div>
+                    <button class="btn btn-primary" onclick="addActivity()">➕ Add</button>
                 </div>
             </div>
 
@@ -587,14 +810,14 @@
                 
                 <div style="margin-bottom: 1rem;">
                     <button class="btn btn-secondary" onclick="exportRecipes()">
-                        📤 Export All Recipes (JSON)
+                        📤 Export All Recipes
                     </button>
                 </div>
 
                 <div style="margin-bottom: 1rem;">
                     <input type="file" id="importFile" accept=".json" style="display: none" onchange="importRecipes()">
                     <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">
-                        📥 Import Recipes (JSON)
+                        📥 Import Recipes
                     </button>
                 </div>
 
@@ -611,41 +834,60 @@
         // Storage keys
         const STORAGE_KEYS = {
             API_KEY: 'meal_planner_api_key',
-            RECIPES: 'meal_planner_recipes'
+            RECIPES: 'meal_planner_recipes_v2',
+            ACTIVITIES: 'meal_planner_activities',
+            MEAL_PLANS: 'meal_planner_weekly_plans',
+            DAILY_LOGS: 'meal_planner_daily_logs'
         };
 
-        // Calorie & Macro targets for portion calculation
-        // PCOS-friendly split: 30% protein, 40% carbs, 30% fat
-        const CALORIE_TARGETS = {
-            weekday: {
-                breakfast: { calories: 450, protein: 34, carbs: 45, fat: 15 },
-                lunch: { calories: 600, protein: 45, carbs: 60, fat: 20 },
-                dinner: { calories: 500, protein: 38, carbs: 50, fat: 17 },
-                snack: { calories: 200, protein: 15, carbs: 20, fat: 6 }
-            },
-            weekend: {
-                breakfast: { calories: 550, protein: 41, carbs: 55, fat: 18 },
-                lunch: { calories: 750, protein: 56, carbs: 75, fat: 25 },
-                dinner: { calories: 650, protein: 49, carbs: 65, fat: 22 },
-                snack: { calories: 250, protein: 19, carbs: 25, fat: 8 }
-            }
+        // Default activities
+        const DEFAULT_ACTIVITIES = [
+            { id: 'pilates', name: 'Pilates', calories: 150, icon: '🧘' },
+            { id: 'badminton', name: 'Badminton', calories: 250, icon: '🏸' },
+            { id: 'swimming', name: 'Swimming', calories: 200, icon: '🏊' },
+            { id: 'cycling', name: 'Cycling', calories: 180, icon: '🚴' },
+            { id: 'rest', name: 'Rest Day', calories: 0, icon: '😴' }
+        ];
+
+        // Recommended portions for weight loss
+        const RECOMMENDED_PORTIONS = {
+            breakfast: 280,
+            lunch: 350,
+            dinner: 300,
+            snack: 150
         };
 
-        // Get API key from storage
-        function getApiKey() {
-            return localStorage.getItem(STORAGE_KEYS.API_KEY) || '';
-        }
+        // Target macros (base weekday)
+        const BASE_TARGETS = {
+            calories: 1750,
+            protein: 132,
+            carbs: 175,
+            fat: 58
+        };
 
-        // Load API key on page load
+        // Current state
+        let currentWeek = getCurrentWeek();
+        let selectedDay = null;
+        let dailyPlans = {};
+
+        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             const apiKey = getApiKey();
             if (apiKey) {
                 document.getElementById('apiKey').value = apiKey;
             }
+            
+            initializeActivities();
             loadRecipeLibrary();
+            renderDaySelector();
+            loadActivityList();
+            loadDashboard();
         });
 
-        // Navigation
+        function getApiKey() {
+            return localStorage.getItem(STORAGE_KEYS.API_KEY) || '';
+        }
+
         function showSection(sectionId) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.getElementById(sectionId).classList.add('active');
@@ -655,28 +897,25 @@
 
             if (sectionId === 'library') {
                 loadRecipeLibrary();
+            } else if (sectionId === 'planner') {
+                renderDaySelector();
+            } else if (sectionId === 'dashboard') {
+                loadDashboard();
             }
         }
 
-        // Save settings
         function saveSettings() {
             const apiKey = document.getElementById('apiKey').value.trim();
             
-            if (!apiKey) {
-                showStatus('Please enter your Claude API key', 'error');
-                return;
-            }
-
-            if (!apiKey.startsWith('sk-ant-')) {
-                showStatus('Invalid API key format. Should start with sk-ant-', 'error');
+            if (!apiKey || !apiKey.startsWith('sk-ant-')) {
+                showStatus('Invalid API key format', 'error');
                 return;
             }
 
             localStorage.setItem(STORAGE_KEYS.API_KEY, apiKey);
-            showStatus('Settings saved successfully! ✅', 'success');
+            showStatus('Settings saved successfully!', 'success');
         }
 
-        // Show status message
         function showStatus(message, type = 'success') {
             const statusEl = document.getElementById('statusMessage');
             statusEl.textContent = message;
@@ -687,7 +926,33 @@
             }, 5000);
         }
 
-        // Update progress bar
+        function getCurrentWeek() {
+            const today = new Date();
+            const days = [];
+            const dayOfWeek = today.getDay();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                days.push(date);
+            }
+            
+            return days;
+        }
+
+        function initializeActivities() {
+            const existing = localStorage.getItem(STORAGE_KEYS.ACTIVITIES);
+            if (!existing) {
+                localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(DEFAULT_ACTIVITIES));
+            }
+        }
+
+        function getActivities() {
+            return JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVITIES) || '[]');
+        }
+
         function updateProgress(current, total) {
             const progressContainer = document.getElementById('progressContainer');
             const progressBar = document.getElementById('progressBar');
@@ -703,7 +968,6 @@
             progressBar.textContent = `${current}/${total} recipes (${percentage}%)`;
         }
 
-        // Extract recipes from URLs
         async function extractRecipes() {
             const apiKey = getApiKey();
             if (!apiKey) {
@@ -742,17 +1006,18 @@
                     updateProgress(i + 1, urls.length);
                 }
 
-                saveRecipes(results);
-                
-                showStatus(`✅ Successfully extracted ${results.length} recipe(s)!`, 'success');
-                
-                document.getElementById('recipeUrls').value = '';
-                
-                displayExtractedRecipes(results);
+                if (results.length > 0) {
+                    saveRecipes(results);
+                    showStatus(`✅ Successfully extracted ${results.length} recipe(s)!`, 'success');
+                    document.getElementById('recipeUrls').value = '';
+                    displayExtractedRecipes(results);
+                } else {
+                    showStatus('No recipes could be extracted', 'warning');
+                }
 
             } catch (error) {
                 console.error('Extraction error:', error);
-                showStatus('Error extracting recipes: ' + error.message, 'error');
+                showStatus('Error: ' + error.message, 'error');
             } finally {
                 extractBtn.disabled = false;
                 extractBtn.textContent = '🤖 Extract Recipes with AI';
@@ -760,7 +1025,6 @@
             }
         }
 
-        // Extract single recipe from URL using Claude API
         async function extractRecipeFromUrl(url, apiKey) {
             try {
                 const response = await fetch('https://meal-planner-proxy.neha-revankar.workers.dev/', {
@@ -775,31 +1039,16 @@
                         max_tokens: 4096,
                         messages: [{
                             role: 'user',
-                            content: `Extract the recipe from this URL: ${url}
+                            content: `Extract the recipe from: ${url}
 
-CRITICAL INSTRUCTIONS for categorization:
-1. PRIMARY MEAL TYPE (pick ONLY ONE):
-   - "breakfast" = morning meal
-   - "lunch" = midday main meal
-   - "dinner" = evening main meal
-   - "snack" = small portion, pre/post workout foods, light bites (smoothies, yogurt, eggs, toast, energy balls, protein bars, fruit bowls, etc.)
-
-2. DIGESTIVE LOAD (how it sits in stomach):
-   - "light" = easy to digest, won't make sleepy (salads, grilled items, steamed, yogurt, smoothies)
-   - "medium" = normal meal weight (most curries, rice dishes, simple pastas)
-   - "heavy" = rich/creamy, makes you feel full (butter-based curries, fried foods, heavy cream dishes)
-
-3. SERVING SIZE: Estimate typical single serving volume in grams or cups (e.g., "250g" or "1.5 cups")
-
-Return ONLY a JSON object (no markdown, no explanation):
+Return ONLY valid JSON (no markdown):
 
 {
   "name": "Recipe name",
   "url": "${url}",
-  "ingredients": ["ingredient 1", "ingredient 2"],
-  "servingSize": "250g per serving",
+  "servingSize": "250g",
   "totalServings": 4,
-  "macrosPerServing": {
+  "macros": {
     "calories": 320,
     "protein": 15,
     "carbs": 35,
@@ -807,7 +1056,6 @@ Return ONLY a JSON object (no markdown, no explanation):
     "fiber": 8
   },
   "primaryMealType": "lunch",
-  "digestiveLoad": "medium",
   "uncertainty": {
     "hasMacros": true,
     "confidence": "high",
@@ -815,12 +1063,12 @@ Return ONLY a JSON object (no markdown, no explanation):
   }
 }
 
-IMPORTANT:
-- primaryMealType must be ONLY ONE of: breakfast, lunch, dinner, snack
-- Full meals (curries, rice dishes, pasta) = lunch or dinner, NOT snack
-- Snacks = small portions only (smoothies, yogurt, toast, eggs, protein bars)
-- Estimate servingSize in grams or cups (be realistic for weight loss)
-- If macros uncertain, set hasMacros: false`
+Rules:
+- servingSize: grams per serving (e.g. "250g")
+- primaryMealType: breakfast/lunch/dinner/snack (ONE only)
+- Full meals = lunch/dinner, NOT snack
+- Small portions = snack
+- Estimate realistic weight-loss portions`
                         }]
                     })
                 });
@@ -831,68 +1079,56 @@ IMPORTANT:
 
                 const data = await response.json();
                 const content = data.content[0].text;
-                
                 const recipe = JSON.parse(content);
+                
                 recipe.id = Date.now() + Math.random();
                 recipe.createdAt = new Date().toISOString();
                 
-                // Calculate personalized portions
-                recipe.portions = calculatePortions(recipe);
+                recipe.recommendedPortion = calculateRecommendedPortion(recipe);
+                recipe.pcosRating = calculatePCOSRating(recipe);
                 
                 return recipe;
 
             } catch (error) {
-                console.error(`Error extracting recipe from ${url}:`, error);
-                showStatus(`Failed to extract from ${url}: ${error.message}`, 'warning');
+                console.error(`Error extracting from ${url}:`, error);
                 return null;
             }
         }
 
-        // Calculate personalized portion sizes
-        function calculatePortions(recipe) {
-            const mealType = recipe.primaryMealType;
-            const caloriesPerServing = recipe.macrosPerServing.calories;
+        function calculateRecommendedPortion(recipe) {
+            const targetGrams = RECOMMENDED_PORTIONS[recipe.primaryMealType] || 300;
+            const targetCal = recipe.primaryMealType === 'breakfast' ? 450 :
+                            recipe.primaryMealType === 'lunch' ? 600 :
+                            recipe.primaryMealType === 'dinner' ? 500 : 200;
             
-            // Target calories for this meal type
-            const weekdayTarget = CALORIE_TARGETS.weekday[mealType]?.calories || 400;
-            const weekendTarget = CALORIE_TARGETS.weekend[mealType]?.calories || 500;
+            const multiplier = targetCal / recipe.macros.calories;
             
-            // Calculate portion multiplier
-            const weekdayMultiplier = weekdayTarget / caloriesPerServing;
-            const weekendMultiplier = weekendTarget / caloriesPerServing;
+            let baseGrams = 250;
+            const match = recipe.servingSize.match(/(\d+)(g|grams)/i);
+            if (match) baseGrams = parseInt(match[1]);
             
-            // Parse serving size to get estimate
-            let baseServingGrams = 250; // default
-            const servingSizeMatch = recipe.servingSize.match(/(\d+)(g|grams)/i);
-            if (servingSizeMatch) {
-                baseServingGrams = parseInt(servingSizeMatch[1]);
-            }
+            const recommendedGrams = Math.round(baseGrams * multiplier);
             
             return {
-                weekday: {
-                    grams: Math.round(baseServingGrams * weekdayMultiplier),
-                    calories: Math.round(caloriesPerServing * weekdayMultiplier),
-                    protein: Math.round(recipe.macrosPerServing.protein * weekdayMultiplier),
-                    carbs: Math.round(recipe.macrosPerServing.carbs * weekdayMultiplier),
-                    fat: Math.round(recipe.macrosPerServing.fat * weekdayMultiplier),
-                    fiber: Math.round(recipe.macrosPerServing.fiber * weekdayMultiplier)
-                },
-                weekend: {
-                    grams: Math.round(baseServingGrams * weekendMultiplier),
-                    calories: Math.round(caloriesPerServing * weekendMultiplier),
-                    protein: Math.round(recipe.macrosPerServing.protein * weekendMultiplier),
-                    carbs: Math.round(recipe.macrosPerServing.carbs * weekendMultiplier),
-                    fat: Math.round(recipe.macrosPerServing.fat * weekendMultiplier),
-                    fiber: Math.round(recipe.macrosPerServing.fiber * weekendMultiplier)
-                },
-                targets: {
-                    weekday: CALORIE_TARGETS.weekday[mealType] || { calories: 400, protein: 30, carbs: 40, fat: 13 },
-                    weekend: CALORIE_TARGETS.weekend[mealType] || { calories: 500, protein: 38, carbs: 50, fat: 17 }
-                }
+                grams: recommendedGrams,
+                calories: Math.round(recipe.macros.calories * multiplier),
+                protein: Math.round(recipe.macros.protein * multiplier),
+                carbs: Math.round(recipe.macros.carbs * multiplier),
+                fat: Math.round(recipe.macros.fat * multiplier),
+                fiber: Math.round(recipe.macros.fiber * multiplier)
             };
         }
 
-        // Display extracted recipes
+        function calculatePCOSRating(recipe) {
+            const macros = recipe.macros;
+            const proteinPercent = (macros.protein * 4) / macros.calories * 100;
+            const carbPercent = (macros.carbs * 4) / macros.calories * 100;
+            
+            if (proteinPercent >= 25 && carbPercent <= 45) return 'green';
+            if (proteinPercent < 15 || carbPercent > 55) return 'red';
+            return 'yellow';
+        }
+
         function displayExtractedRecipes(recipes) {
             const container = document.getElementById('extractedRecipes');
             
@@ -904,11 +1140,7 @@ IMPORTANT:
             let html = '<div style="margin-top: 2rem;"><h3>✅ Extracted Recipes</h3>';
             html += '<div class="table-container"><table>';
             html += '<thead><tr>';
-            html += '<th>Recipe</th>';
-            html += '<th>Your Portion</th>';
-            html += '<th>Macros vs Target</th>';
-            html += '<th>Meal Type</th>';
-            html += '<th>Load</th>';
+            html += '<th>Recipe</th><th>Portion</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Fiber</th><th>Type</th><th>PCOS</th>';
             html += '</tr></thead><tbody>';
             
             recipes.forEach(recipe => {
@@ -919,59 +1151,51 @@ IMPORTANT:
             container.innerHTML = html;
         }
 
-        // Create table row HTML
         function createTableRow(recipe, isPreview = false) {
-            const uncertaintyFlag = !recipe.uncertainty?.hasMacros || recipe.uncertainty?.confidence === 'low' 
-                ? `<div class="uncertainty-flag">⚠️ ${recipe.uncertainty?.notes || 'Macros estimated'}</div>`
-                : '';
+            if (!recipe || !recipe.macros) {
+                console.error('Invalid recipe:', recipe);
+                return '';
+            }
 
-            const portions = recipe.portions;
+            const portion = recipe.recommendedPortion || {
+                grams: 250,
+                protein: recipe.macros.protein,
+                carbs: recipe.macros.carbs,
+                fat: recipe.macros.fat,
+                fiber: recipe.macros.fiber
+            };
+
+            const pcosRating = recipe.pcosRating || 'yellow';
+            const pcosColor = pcosRating === 'green' ? '🟢' : pcosRating === 'red' ? '🔴' : '🟡';
             
+            const uncertaintyFlag = !recipe.uncertainty?.hasMacros ? 
+                `<div class="uncertainty-flag">⚠️ Estimated macros</div>` : '';
+
             let html = '<tr>';
             
-            // Recipe name
             html += `<td>
                 <div class="recipe-name">${recipe.name}</div>
                 ${uncertaintyFlag}
-                <small style="color: var(--text-medium);">
-                    <a href="${recipe.url}" target="_blank">View Recipe →</a>
-                </small>
+                <small><a href="${recipe.url}" target="_blank">View Recipe →</a></small>
             </td>`;
             
-            // Your portions
-            html += `<td class="portion-info">
-                <div class="portion-weekday">Weekday: ${portions.weekday.grams}g (${portions.weekday.calories} cal)</div>
-                <div class="portion-weekend">Weekend: ${portions.weekend.grams}g (${portions.weekend.calories} cal)</div>
-                <small style="color: var(--text-medium); display: block; margin-top: 0.5rem;">
-                    Recipe: ${recipe.servingSize} × ${recipe.totalServings}
-                </small>
+            html += `<td>
+                <strong>${portion.grams}g</strong><br>
+                <small style="color: var(--text-medium);">${portion.calories} cal</small>
             </td>`;
             
-            // Macros (for your weekday portion) with targets
-            const targets = portions.targets?.weekday || { protein: 30, carbs: 40, fat: 13 };
-            html += `<td class="macros-cell">
-                <span class="macro-item">🥩 ${portions.weekday.protein}g / ${targets.protein}g protein</span>
-                <span class="macro-item">🍚 ${portions.weekday.carbs}g / ${targets.carbs}g carbs</span>
-                <span class="macro-item">🥑 ${portions.weekday.fat}g / ${targets.fat}g fat</span>
-                <span class="macro-item">🌾 ${portions.weekday.fiber}g fiber</span>
-                <small style="color: var(--text-medium); display: block; margin-top: 0.25rem;">
-                    Target for ${recipe.primaryMealType}
-                </small>
-            </td>`;
+            html += `<td><strong>${portion.protein}g</strong></td>`;
+            html += `<td><strong>${portion.carbs}g</strong></td>`;
+            html += `<td><strong>${portion.fat}g</strong></td>`;
+            html += `<td><strong>${portion.fiber}g</strong></td>`;
             
-            // Meal type
             html += `<td><span class="tag tag-${recipe.primaryMealType}">${recipe.primaryMealType}</span></td>`;
             
-            // Digestive load
-            html += `<td><span class="tag tag-${recipe.digestiveLoad}">${recipe.digestiveLoad}</span></td>`;
+            html += `<td><span class="pcos-indicator pcos-${pcosRating}"></span>${pcosColor}</td>`;
             
-            // Actions (if not preview)
             if (!isPreview) {
                 html += `<td>
-                    <div class="action-buttons">
-                        <button class="btn-edit" onclick="editRecipe('${recipe.id}')">✏️ Edit</button>
-                        <button class="btn-delete" onclick="deleteRecipe('${recipe.id}')">🗑️</button>
-                    </div>
+                    <button class="btn-delete" onclick="deleteRecipe('${recipe.id}')">🗑️</button>
                 </td>`;
             }
             
@@ -979,79 +1203,71 @@ IMPORTANT:
             return html;
         }
 
-        // Save recipes to storage
         function saveRecipes(newRecipes) {
-            const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
-            const updated = [...existing, ...newRecipes];
-            localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(updated));
-        }
-
-        // Load recipe library
-        function loadRecipeLibrary() {
-            const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
-            const container = document.getElementById('recipeLibrary');
-
-            if (recipes.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <svg viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
-                        </svg>
-                        <h3>No recipes yet</h3>
-                        <p>Start by extracting recipes from URLs!</p>
-                    </div>
-                `;
-                return;
+            try {
+                const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+                const updated = [...existing, ...newRecipes];
+                localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(updated));
+                console.log(`Saved ${newRecipes.length} recipes. Total: ${updated.length}`);
+            } catch (error) {
+                console.error('Error saving recipes:', error);
+                showStatus('Error saving recipes: ' + error.message, 'error');
             }
-
-            let html = '<div class="table-container"><table>';
-            html += '<thead><tr>';
-            html += '<th>Recipe</th>';
-            html += '<th>Your Portion</th>';
-            html += '<th>Macros vs Target (Weekday)</th>';
-            html += '<th>Meal Type</th>';
-            html += '<th>Digestive Load</th>';
-            html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
-            
-            recipes.forEach(recipe => {
-                html += createTableRow(recipe);
-            });
-            
-            html += '</tbody></table></div>';
-            container.innerHTML = html;
         }
 
-        // Filter recipes
+        function loadRecipeLibrary() {
+            try {
+                const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+                console.log(`Loading ${recipes.length} recipes from storage`);
+                
+                const container = document.getElementById('recipeLibrary');
+
+                if (recipes.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><h3>No recipes yet</h3><p>Start extracting recipes!</p></div>';
+                    return;
+                }
+
+                let html = '<div class="table-container"><table>';
+                html += '<thead><tr>';
+                html += '<th>Recipe</th><th>Portion</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Fiber</th><th>Type</th><th>PCOS</th><th>Actions</th>';
+                html += '</tr></thead><tbody>';
+                
+                recipes.forEach(recipe => {
+                    html += createTableRow(recipe);
+                });
+                
+                html += '</tbody></table></div>';
+                container.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading library:', error);
+                showStatus('Error loading recipes: ' + error.message, 'error');
+            }
+        }
+
         function filterRecipes() {
             const searchTerm = document.getElementById('searchRecipes').value.toLowerCase();
             const mealTypeFilter = document.getElementById('filterMealType').value;
-            const digestiveFilter = document.getElementById('filterDigestive').value;
+            const pcosFilter = document.getElementById('filterPCOS').value;
             
             const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
             
             const filtered = recipes.filter(recipe => {
                 const matchesSearch = recipe.name.toLowerCase().includes(searchTerm);
                 const matchesMealType = !mealTypeFilter || recipe.primaryMealType === mealTypeFilter;
-                const matchesDigestive = !digestiveFilter || recipe.digestiveLoad === digestiveFilter;
-                return matchesSearch && matchesMealType && matchesDigestive;
+                const matchesPCOS = !pcosFilter || recipe.pcosRating === pcosFilter;
+                return matchesSearch && matchesMealType && matchesPCOS;
             });
 
             const container = document.getElementById('recipeLibrary');
             
             if (filtered.length === 0) {
-                container.innerHTML = '<div class="empty-state"><h3>No recipes match your filters</h3></div>';
+                container.innerHTML = '<div class="empty-state"><h3>No matching recipes</h3></div>';
                 return;
             }
 
             let html = '<div class="table-container"><table>';
             html += '<thead><tr>';
-            html += '<th>Recipe</th>';
-            html += '<th>Your Portion</th>';
-            html += '<th>Macros vs Target (Weekday)</th>';
-            html += '<th>Meal Type</th>';
-            html += '<th>Digestive Load</th>';
-            html += '<th>Actions</th>';
+            html += '<th>Recipe</th><th>Portion</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Fiber</th><th>Type</th><th>PCOS</th><th>Actions</th>';
             html += '</tr></thead><tbody>';
             
             filtered.forEach(recipe => {
@@ -1062,11 +1278,8 @@ IMPORTANT:
             container.innerHTML = html;
         }
 
-        // Delete recipe
         function deleteRecipe(recipeId) {
-            if (!confirm('Are you sure you want to delete this recipe?')) {
-                return;
-            }
+            if (!confirm('Delete this recipe?')) return;
 
             const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
             const updated = recipes.filter(r => r.id != recipeId);
@@ -1075,12 +1288,6 @@ IMPORTANT:
             showStatus('Recipe deleted', 'success');
         }
 
-        // Edit recipe (placeholder)
-        function editRecipe(recipeId) {
-            showStatus('Recipe editing coming in next update!', 'warning');
-        }
-
-        // Export recipes
         function exportRecipes() {
             const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
             const dataStr = JSON.stringify(recipes, null, 2);
@@ -1088,13 +1295,12 @@ IMPORTANT:
             
             const link = document.createElement('a');
             link.href = URL.createObjectURL(dataBlob);
-            link.download = `meal-planner-recipes-${new Date().toISOString().split('T')[0]}.json`;
+            link.download = `recipes-${new Date().toISOString().split('T')[0]}.json`;
             link.click();
             
-            showStatus('Recipes exported successfully!', 'success');
+            showStatus('Recipes exported!', 'success');
         }
 
-        // Import recipes
         function importRecipes() {
             const file = document.getElementById('importFile').files[0];
             if (!file) return;
@@ -1103,31 +1309,485 @@ IMPORTANT:
             reader.onload = (e) => {
                 try {
                     const imported = JSON.parse(e.target.result);
+                    
+                    imported.forEach(recipe => {
+                        if (!recipe.recommendedPortion && recipe.macros) {
+                            recipe.recommendedPortion = calculateRecommendedPortion(recipe);
+                        }
+                        if (!recipe.pcosRating && recipe.macros) {
+                            recipe.pcosRating = calculatePCOSRating(recipe);
+                        }
+                    });
+                    
                     const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
                     const merged = [...existing, ...imported];
                     localStorage.setItem(STORAGE_KEYS.RECIPES, JSON.stringify(merged));
                     loadRecipeLibrary();
                     showStatus(`Imported ${imported.length} recipes!`, 'success');
                 } catch (error) {
-                    showStatus('Error importing recipes: Invalid file format', 'error');
+                    console.error('Import error:', error);
+                    showStatus('Error importing: Invalid file', 'error');
                 }
             };
             reader.readAsText(file);
         }
 
-        // Clear all data
         function clearAllData() {
-            if (!confirm('Are you sure? This will delete ALL your recipes permanently!')) {
-                return;
-            }
-
-            if (!confirm('Really sure? This cannot be undone!')) {
-                return;
-            }
+            if (!confirm('Delete ALL recipes?')) return;
+            if (!confirm('Really sure? Cannot be undone!')) return;
 
             localStorage.removeItem(STORAGE_KEYS.RECIPES);
             loadRecipeLibrary();
             showStatus('All data cleared', 'success');
+        }
+
+        // MEAL PLANNER FUNCTIONS
+        function renderDaySelector() {
+            const container = document.getElementById('daySelector');
+            const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            
+            let html = '';
+            currentWeek.forEach((date, i) => {
+                const dateStr = date.toISOString().split('T')[0];
+                const isToday = dateStr === new Date().toISOString().split('T')[0];
+                html += `
+                    <div class="day-card ${selectedDay === dateStr ? 'active' : ''}" onclick="selectDay('${dateStr}')">
+                        <div class="day-name">${dayNames[i]}</div>
+                        <div class="day-date">${date.getDate()}/${date.getMonth() + 1}</div>
+                        ${isToday ? '<small>Today</small>' : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function selectDay(dateStr) {
+            selectedDay = dateStr;
+            renderDaySelector();
+            renderDayPlan(dateStr);
+        }
+
+        function renderDayPlan(dateStr) {
+            const container = document.getElementById('dayPlanContent');
+            const plan = getDayPlan(dateStr);
+            
+            let html = '<h3>Activity for ' + new Date(dateStr).toLocaleDateString() + '</h3>';
+            html += '<div class="activity-selector">';
+            
+            const activities = getActivities();
+            activities.forEach(activity => {
+                const isSelected = plan.activity === activity.id;
+                html += `
+                    <div class="activity-option ${isSelected ? 'selected' : ''}" onclick="selectActivity('${dateStr}', '${activity.id}')">
+                        <div class="icon">${activity.icon}</div>
+                        <div class="name">${activity.name}</div>
+                        <div class="calories">+${activity.calories} cal</div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            
+            if (plan.activity) {
+                html += renderMealSlots(dateStr, plan);
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function selectActivity(dateStr, activityId) {
+            const plan = getDayPlan(dateStr);
+            plan.activity = activityId;
+            saveDayPlan(dateStr, plan);
+            renderDayPlan(dateStr);
+        }
+
+        function renderMealSlots(dateStr, plan) {
+            const activity = getActivities().find(a => a.id === plan.activity);
+            const totalCalories = BASE_TARGETS.calories + (activity?.calories || 0);
+            
+            let html = '<h3 style="margin-top: 2rem;">Today\'s Meals</h3>';
+            html += `<p style="color: var(--text-medium);">Target: ${totalCalories} cal | ${BASE_TARGETS.protein}g protein | ${BASE_TARGETS.carbs}g carbs | ${BASE_TARGETS.fat}g fat</p>`;
+            
+            html += '<div class="meal-slots">';
+            
+            const meals = [
+                { id: 'breakfast', time: '8:00 AM', calories: 450, type: 'breakfast' },
+                { id: 'lunch', time: '1:00 PM', calories: 600, type: 'lunch' },
+                { id: 'dinner', time: '7:00 PM', calories: 500, type: 'dinner' },
+                { id: 'snack', time: 'Flexible', calories: 200, type: 'snack' }
+            ];
+            
+            meals.forEach(meal => {
+                html += renderMealSlot(dateStr, meal, plan);
+            });
+            
+            html += '</div>';
+            
+            html += renderMacroTracker(plan, totalCalories);
+            html += renderWarnings(plan, dateStr);
+            
+            return html;
+        }
+
+        function renderMealSlot(dateStr, meal, plan) {
+            const selected = plan.meals?.[meal.id];
+            
+            let html = '<div class="meal-slot">';
+            html += '<div class="meal-slot-header">';
+            html += `<span class="meal-slot-time">${meal.id.toUpperCase()} - ${meal.time}</span>`;
+            html += `<span class="meal-slot-target">Target: ~${meal.calories} cal</span>`;
+            html += '</div>';
+            
+            if (selected) {
+                html += `<div class="recipe-selected">
+                    <div>
+                        <strong>${selected.name}</strong><br>
+                        <small>${selected.recommendedPortion.calories} cal | ${selected.recommendedPortion.protein}g protein</small>
+                    </div>
+                    <button class="btn-delete btn-small" onclick="removeRecipeFromMeal('${dateStr}', '${meal.id}')">Remove</button>
+                </div>`;
+            } else {
+                html += `<div class="recipe-picker">
+                    <select onchange="addRecipeToMeal('${dateStr}', '${meal.id}', this.value)" style="width: 100%;">
+                        <option value="">Select recipe...</option>
+                        ${getRecipeOptions(meal.type, dateStr, meal.id)}
+                    </select>
+                </div>`;
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function getRecipeOptions(mealType, dateStr, mealId) {
+            const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+            const filtered = recipes.filter(r => r.primaryMealType === mealType);
+            
+            // Evening warning: filter to light recipes only
+            const hour = parseInt(mealId === 'dinner' ? '19' : '0');
+            const isEvening = hour >= 18;
+            
+            const available = isEvening ? 
+                filtered.filter(r => r.pcosRating === 'green') : 
+                filtered;
+            
+            let html = '';
+            available.forEach(recipe => {
+                html += `<option value="${recipe.id}">${recipe.name} (${recipe.recommendedPortion.calories} cal)</option>`;
+            });
+            
+            return html;
+        }
+
+        function addRecipeToMeal(dateStr, mealId, recipeId) {
+            if (!recipeId) return;
+            
+            const recipes = JSON.parse(localStorage.getItem(STORAGE_KEYS.RECIPES) || '[]');
+            const recipe = recipes.find(r => r.id == recipeId);
+            
+            if (!recipe) return;
+            
+            const plan = getDayPlan(dateStr);
+            if (!plan.meals) plan.meals = {};
+            plan.meals[mealId] = recipe;
+            saveDayPlan(dateStr, plan);
+            renderDayPlan(dateStr);
+        }
+
+        function removeRecipeFromMeal(dateStr, mealId) {
+            const plan = getDayPlan(dateStr);
+            if (plan.meals && plan.meals[mealId]) {
+                delete plan.meals[mealId];
+                saveDayPlan(dateStr, plan);
+                renderDayPlan(dateStr);
+            }
+        }
+
+        function renderMacroTracker(plan, targetCalories) {
+            const totals = calculateDayTotals(plan);
+            
+            let html = '<div class="macro-tracker">';
+            html += '<h3>Daily Progress</h3>';
+            
+            html += renderMacroRow('Calories', totals.calories, targetCalories, 'calories');
+            html += renderMacroRow('Protein', totals.protein, BASE_TARGETS.protein, 'protein');
+            html += renderMacroRow('Carbs', totals.carbs, BASE_TARGETS.carbs, 'carbs');
+            html += renderMacroRow('Fat', totals.fat, BASE_TARGETS.fat, 'fat');
+            
+            html += '</div>';
+            return html;
+        }
+
+        function renderMacroRow(label, current, target, type) {
+            const percentage = Math.min((current / target) * 100, 100);
+            const unit = type === 'calories' ? 'cal' : 'g';
+            
+            return `
+                <div class="macro-row">
+                    <div class="macro-label">${label}</div>
+                    <div class="macro-progress">
+                        <div class="macro-progress-bar ${type}" style="width: ${percentage}%">
+                            ${percentage > 20 ? Math.round(percentage) + '%' : ''}
+                        </div>
+                    </div>
+                    <div class="macro-values">${current}${unit} / ${target}${unit}</div>
+                </div>
+            `;
+        }
+
+        function renderWarnings(plan, dateStr) {
+            const warnings = [];
+            const totals = calculateDayTotals(plan);
+            const activity = getActivities().find(a => a.id === plan.activity);
+            const targetCal = BASE_TARGETS.calories + (activity?.calories || 0);
+            
+            // Check targets
+            if (totals.calories > targetCal + 150) {
+                warnings.push('⚠️ Calories are ' + (totals.calories - targetCal) + ' over target');
+            }
+            
+            if (totals.protein < BASE_TARGETS.protein * 0.8) {
+                warnings.push('⚠️ Low protein - add a high-protein snack');
+            }
+            
+            if (totals.carbs > BASE_TARGETS.carbs * 1.2) {
+                warnings.push('⚠️ High carbs - consider lighter options');
+            }
+            
+            // Evening check
+            const dinner = plan.meals?.dinner;
+            if (dinner && dinner.pcosRating === 'red') {
+                warnings.push('⚠️ Heavy meal for evening - choose lighter dinner');
+            }
+            
+            if (warnings.length === 0) {
+                warnings.push('✅ Great plan! All targets looking good.');
+            }
+            
+            let html = '<div class="warnings-box"><h4>Smart Warnings</h4>';
+            warnings.forEach(w => {
+                html += `<div class="warning-item">${w}</div>`;
+            });
+            html += '</div>';
+            
+            return html;
+        }
+
+        function calculateDayTotals(plan) {
+            const totals = { calories: 0, protein: 0, carbs: 0, fat: 0 };
+            
+            if (plan.meals) {
+                Object.values(plan.meals).forEach(recipe => {
+                    const p = recipe.recommendedPortion;
+                    totals.calories += p.calories;
+                    totals.protein += p.protein;
+                    totals.carbs += p.carbs;
+                    totals.fat += p.fat;
+                });
+            }
+            
+            return totals;
+        }
+
+        function getDayPlan(dateStr) {
+            const plans = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEAL_PLANS) || '{}');
+            return plans[dateStr] || { activity: null, meals: {} };
+        }
+
+        function saveDayPlan(dateStr, plan) {
+            const plans = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEAL_PLANS) || '{}');
+            plans[dateStr] = plan;
+            localStorage.setItem(STORAGE_KEYS.MEAL_PLANS, JSON.stringify(plans));
+        }
+
+        // ACTIVITY MANAGEMENT
+        function loadActivityList() {
+            const activities = getActivities();
+            const container = document.getElementById('activityList');
+            
+            let html = '<div style="display: grid; gap: 1rem;">';
+            activities.forEach(activity => {
+                html += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #F5F5F5; border-radius: 6px;">
+                        <div>
+                            <strong>${activity.icon} ${activity.name}</strong>
+                            <span style="margin-left: 1rem; color: var(--text-medium);">+${activity.calories} cal</span>
+                        </div>
+                        ${activity.id !== 'rest' ? `<button class="btn-delete btn-small" onclick="deleteActivity('${activity.id}')">🗑️</button>` : ''}
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function addActivity() {
+            const name = document.getElementById('newActivityName').value.trim();
+            const calories = parseInt(document.getElementById('newActivityCalories').value);
+            
+            if (!name || !calories) {
+                alert('Please enter activity name and calories');
+                return;
+            }
+            
+            const activities = getActivities();
+            activities.push({
+                id: Date.now().toString(),
+                name: name,
+                calories: calories,
+                icon: '🏃'
+            });
+            
+            localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(activities));
+            document.getElementById('newActivityName').value = '';
+            document.getElementById('newActivityCalories').value = '';
+            loadActivityList();
+            showStatus('Activity added!', 'success');
+        }
+
+        function deleteActivity(activityId) {
+            if (!confirm('Delete this activity?')) return;
+            
+            const activities = getActivities();
+            const updated = activities.filter(a => a.id !== activityId);
+            localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(updated));
+            loadActivityList();
+            showStatus('Activity deleted', 'success');
+        }
+
+        // DASHBOARD FUNCTIONS
+        function loadDashboard() {
+            const plans = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEAL_PLANS) || '{}');
+            
+            // Calculate stats
+            let totalCal = 0, totalProtein = 0, daysLogged = 0, activityDays = 0;
+            
+            currentWeek.forEach(date => {
+                const dateStr = date.toISOString().split('T')[0];
+                const plan = plans[dateStr];
+                
+                if (plan && plan.meals && Object.keys(plan.meals).length > 0) {
+                    const totals = calculateDayTotals(plan);
+                    totalCal += totals.calories;
+                    totalProtein += totals.protein;
+                    daysLogged++;
+                }
+                
+                if (plan && plan.activity && plan.activity !== 'rest') {
+                    activityDays++;
+                }
+            });
+            
+            const avgCal = daysLogged > 0 ? Math.round(totalCal / daysLogged) : 0;
+            const avgProtein = daysLogged > 0 ? Math.round(totalProtein / daysLogged) : 0;
+            
+            document.getElementById('avgCalories').textContent = avgCal || '--';
+            document.getElementById('avgProtein').textContent = avgProtein || '--';
+            document.getElementById('activityDays').textContent = activityDays;
+            
+            document.getElementById('caloriesTrend').textContent = `Target: ${BASE_TARGETS.calories}`;
+            document.getElementById('caloriesTrend').className = avgCal <= BASE_TARGETS.calories + 100 ? 'stat-change positive' : 'stat-change negative';
+            
+            document.getElementById('proteinTrend').textContent = `Target: ${BASE_TARGETS.protein}g`;
+            document.getElementById('proteinTrend').className = avgProtein >= BASE_TARGETS.protein * 0.9 ? 'stat-change positive' : 'stat-change negative';
+            
+            renderWeeklyLog();
+            detectProblems();
+        }
+
+        function renderWeeklyLog() {
+            const container = document.getElementById('weeklyLogTable');
+            const plans = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEAL_PLANS) || '{}');
+            
+            let html = '<table><thead><tr><th>Day</th><th>Activity</th><th>Calories</th><th>Protein</th><th>Status</th></tr></thead><tbody>';
+            
+            currentWeek.forEach(date => {
+                const dateStr = date.toISOString().split('T')[0];
+                const plan = plans[dateStr];
+                const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+                
+                if (plan && plan.activity) {
+                    const activity = getActivities().find(a => a.id === plan.activity);
+                    const totals = calculateDayTotals(plan);
+                    const status = totals.calories > 0 ? '✅ Logged' : '⏳ Planned';
+                    
+                    html += `<tr>
+                        <td>${dayName}</td>
+                        <td>${activity?.icon} ${activity?.name || '-'}</td>
+                        <td>${totals.calories} cal</td>
+                        <td>${totals.protein}g</td>
+                        <td>${status}</td>
+                    </tr>`;
+                } else {
+                    html += `<tr>
+                        <td>${dayName}</td>
+                        <td colspan="4" style="text-align: center; color: var(--text-medium);">No plan</td>
+                    </tr>`;
+                }
+            });
+            
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function detectProblems() {
+            const container = document.getElementById('problemsDetected');
+            const plans = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEAL_PLANS) || '{}');
+            const problems = [];
+            
+            let lowProteinDays = 0;
+            let highCalDays = 0;
+            
+            currentWeek.forEach(date => {
+                const dateStr = date.toISOString().split('T')[0];
+                const plan = plans[dateStr];
+                
+                if (plan && plan.meals) {
+                    const totals = calculateDayTotals(plan);
+                    
+                    if (totals.protein < BASE_TARGETS.protein * 0.8) lowProteinDays++;
+                    if (totals.calories > BASE_TARGETS.calories + 200) highCalDays++;
+                }
+            });
+            
+            if (lowProteinDays > 0) {
+                problems.push(`⚠️ Low protein on ${lowProteinDays} day(s) - add more protein-rich foods`);
+            }
+            
+            if (highCalDays > 2) {
+                problems.push(`⚠️ Over calorie target on ${highCalDays} days - reduce portions or choose lighter recipes`);
+            }
+            
+            if (problems.length === 0) {
+                problems.push('✅ No major issues detected - great job!');
+            }
+            
+            container.innerHTML = problems.map(p => `<div class="warning-item">${p}</div>`).join('');
+        }
+
+        function connectFitbit() {
+            alert('Fitbit integration coming soon! You\'ll be able to sync weight, calories burned, and steps.');
+        }
+
+        function exportWeeklyReport() {
+            const plans = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEAL_PLANS) || '{}');
+            const report = {
+                week: currentWeek.map(d => d.toISOString().split('T')[0]),
+                plans: plans,
+                generated: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(report, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `weekly-report-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            showStatus('Weekly report exported!', 'success');
         }
     </script>
 </body>
